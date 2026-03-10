@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:app_links/app_links.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'strava_service.dart';
 
 void main() {
@@ -39,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final StravaService _stravaService = StravaService();
   final _appLinks = AppLinks();
   StreamSubscription<Uri>? _sub;
+  StreamSubscription<List<SharedMediaFile>>? _intentSub;
 
   String _status = 'Initializing...';
   bool _isConnected = false;
@@ -50,12 +52,102 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _initStrava();
     _initDeepLinks();
+    _initSharingIntent();
   }
 
   @override
   void dispose() {
     _sub?.cancel();
+    _intentSub?.cancel();
     super.dispose();
+  }
+
+  void _initSharingIntent() {
+    // For sharing files while the app is running
+    _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((List<SharedMediaFile> value) {
+      if (value.isNotEmpty) {
+        _handleSharedFiles(value);
+      }
+    }, onError: (err) {
+      print("getIntentDataStream error: $err");
+    });
+
+    // For sharing files when the app is closed
+    ReceiveSharingIntent.instance.getInitialMedia().then((List<SharedMediaFile> value) {
+      if (value.isNotEmpty) {
+        _handleSharedFiles(value);
+      }
+    });
+  }
+
+  void _handleSharedFiles(List<SharedMediaFile> files) {
+    // Only process the first file for now, and check extension
+    for (var file in files) {
+      if (file.path.toLowerCase().endsWith('.fit')) {
+        _confirmAndUpload(File(file.path));
+        break; // Only upload one file at a time
+      } else {
+        setState(() {
+          _status = 'Received file is not a .FIT file: ${file.path.split('/').last}';
+        });
+      }
+    }
+  }
+
+  Future<void> _confirmAndUpload(File file) async {
+    if (!_isConnected) {
+      setState(() {
+        _status = 'Please connect to Strava first to upload ${file.path.split('/').last}';
+      });
+      return;
+    }
+
+    // Show dialog or just upload? Let's show a dialog for better UX
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Upload Shared File?'),
+        content: Text('Do you want to upload "${file.path.split('/').last}" to Strava?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _uploadFile(file);
+            },
+            child: const Text('Upload'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _uploadFile(File file) async {
+      setState(() {
+        _isUploading = true;
+        _uploadResult = null;
+        _status = 'Uploading ${file.path.split('/').last}...';
+      });
+
+      try {
+        final resultMsg = await _stravaService.uploadFitFile(file);
+        setState(() {
+          _uploadResult = resultMsg;
+          _status = 'Upload Complete';
+        });
+      } catch (e) {
+        setState(() {
+          _uploadResult = 'Error: $e';
+          _status = 'Upload Failed';
+        });
+      } finally {
+        setState(() {
+          _isUploading = false;
+        });
+      }
   }
 
   Future<void> _initStrava() async {
@@ -157,29 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     if (result != null) {
-      setState(() {
-        _isUploading = true;
-        _uploadResult = null;
-        _status = 'Uploading...';
-      });
-
-      try {
-        File file = File(result.files.single.path!);
-        final resultMsg = await _stravaService.uploadFitFile(file);
-        setState(() {
-          _uploadResult = resultMsg;
-          _status = 'Upload Complete';
-        });
-      } catch (e) {
-        setState(() {
-          _uploadResult = 'Error: $e';
-          _status = 'Upload Failed';
-        });
-      } finally {
-        setState(() {
-          _isUploading = false;
-        });
-      }
+      _uploadFile(File(result.files.single.path!));
     }
   }
 
