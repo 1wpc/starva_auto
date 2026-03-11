@@ -15,6 +15,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'theme_manager.dart';
 import 'locale_manager.dart';
+import 'privacy_policy_page.dart';
 
 void main() {
   runApp(const UpstraApp());
@@ -226,6 +227,23 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     _initStrava();
     _initDeepLinks();
     _initSharingIntent();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPrivacyPolicy();
+    });
+  }
+
+  Future<void> _checkPrivacyPolicy() async {
+    final prefs = await SharedPreferences.getInstance();
+    final agreed = prefs.getBool('privacy_agreed') ?? false;
+    if (!agreed && mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        useSafeArea: false,
+        builder: (context) => const PrivacyPolicyPage(isDialog: true),
+      );
+    }
   }
 
   @override

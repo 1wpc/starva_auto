@@ -57,6 +57,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get confirmButton => '确定';
 
   @override
+  String get privacyPolicyTitle => '隐私政策';
+
+  @override
+  String get agreeButton => '同意';
+
+  @override
+  String get disagreeButton => '不同意';
+
+  @override
   String get cancelButton => '取消';
 
   @override

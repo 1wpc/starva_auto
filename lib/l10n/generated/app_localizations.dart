@@ -194,6 +194,24 @@ abstract class AppLocalizations {
   /// **'Confirm'**
   String get confirmButton;
 
+  /// No description provided for @privacyPolicyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicyTitle;
+
+  /// No description provided for @agreeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree'**
+  String get agreeButton;
+
+  /// No description provided for @disagreeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Disagree'**
+  String get disagreeButton;
+
   /// No description provided for @cancelButton.
   ///
   /// In en, this message translates to:

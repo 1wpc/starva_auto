@@ -58,6 +58,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmButton => 'Confirm';
 
   @override
+  String get privacyPolicyTitle => 'Privacy Policy';
+
+  @override
+  String get agreeButton => 'Agree';
+
+  @override
+  String get disagreeButton => 'Disagree';
+
+  @override
   String get cancelButton => 'Cancel';
 
   @override

@@ -3,6 +3,7 @@ import 'l10n/generated/app_localizations.dart';
 import 'log_manager.dart';
 import 'theme_manager.dart';
 import 'locale_manager.dart';
+import 'privacy_policy_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -84,6 +85,18 @@ class SettingsPage extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_outlined, color: Color(0xFFFC4C02)),
+                  title: Text(AppLocalizations.of(context)!.privacyPolicyTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PrivacyPolicyPage(isDialog: false)),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.info_outline, color: Color(0xFFFC4C02)),
                   title: Text(AppLocalizations.of(context)!.versionTitle),
