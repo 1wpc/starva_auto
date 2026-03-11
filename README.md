@@ -1,3 +1,3 @@
-# starva_auto
+# 小四爪 (Upstra)
 
-A new Flutter project.
+Strava FIT file upload tool.

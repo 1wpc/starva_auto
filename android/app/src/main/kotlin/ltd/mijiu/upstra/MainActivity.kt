@@ -1,4 +1,4 @@
-package com.example.starva_auto
+package ltd.mijiu.upstra
 
 import io.flutter.embedding.android.FlutterActivity
 

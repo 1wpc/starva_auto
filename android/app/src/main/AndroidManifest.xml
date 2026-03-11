@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="starva_auto"
+        android:label="小四爪"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
