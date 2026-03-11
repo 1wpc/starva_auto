@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.6.0
+  path_provider: ^2.1.5
   receive_sharing_intent: ^1.8.1
   shared_preferences: ^2.5.4
   url_launcher: ^6.3.2

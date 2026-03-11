@@ -1,55 +1,214 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:app_links/app_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'strava_service.dart';
+import 'log_manager.dart';
+import 'settings_page.dart';
+import 'theme_manager.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const UpstraApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class UpstraApp extends StatelessWidget {
+  const UpstraApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '小四爪',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Strava FIT Uploader'),
+    return AnimatedBuilder(
+      animation: ThemeManager(),
+      builder: (context, child) {
+        return MaterialApp(
+          title: '小四爪',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFFFC4C02), // Strava Orange
+              brightness: Brightness.light,
+            ),
+            scaffoldBackgroundColor: const Color(0xFFF7F7F7),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              titleTextStyle: TextStyle(
+                color: Colors.black87,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.5,
+              ),
+              iconTheme: IconThemeData(color: Colors.black87),
+            ),
+            cardTheme: CardThemeData(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+              ),
+              color: Colors.white,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFC4C02),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFFFC4C02),
+              brightness: Brightness.dark,
+            ),
+            scaffoldBackgroundColor: const Color(0xFF121212),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              titleTextStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+              iconTheme: IconThemeData(color: Colors.white),
+            ),
+            cardTheme: CardThemeData(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+              ),
+              color: const Color(0xFF1E1E1E),
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFC4C02),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          themeMode: ThemeManager().themeMode,
+          home: const DashboardPage(),
+          // Fix for "Failed to handle route information"
+          onGenerateRoute: (settings) {
+            // If this is the auth redirect, show a transient loading page instead of pushing a new DashboardPage
+            final routeName = settings.name?.toLowerCase() ?? '';
+            if (routeName.contains('code=') || routeName.startsWith('starvaauto://')) {
+              return MaterialPageRoute(
+                builder: (context) => const AuthCallbackPage(),
+              );
+            }
+            return MaterialPageRoute(
+              builder: (context) => const DashboardPage(),
+            );
+          },
+        );
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class AuthCallbackPage extends StatefulWidget {
+  const AuthCallbackPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<AuthCallbackPage> createState() => _AuthCallbackPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _AuthCallbackPageState extends State<AuthCallbackPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Automatically close this page after a short delay to reveal the updated DashboardPage underneath
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(
+              color: Color(0xFFFC4C02),
+            ),
+            SizedBox(height: 16),
+            Text(
+              "Finalizing connection...",
+              style: TextStyle(color: Colors.black54),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> with SingleTickerProviderStateMixin {
   final StravaService _stravaService = StravaService();
   final _appLinks = AppLinks();
+  
   StreamSubscription<Uri>? _sub;
   StreamSubscription<List<SharedMediaFile>>? _intentSub;
 
-  String _status = 'Initializing...';
+  // State
   bool _isConnected = false;
   bool _isUploading = false;
-  String? _uploadResult;
+
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
     super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
     _initStrava();
     _initDeepLinks();
     _initSharingIntent();
@@ -59,178 +218,130 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     _sub?.cancel();
     _intentSub?.cancel();
+    _pulseController.dispose();
     super.dispose();
   }
 
-  void _initSharingIntent() {
-    // For sharing files while the app is running
-    _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((List<SharedMediaFile> value) {
-      if (value.isNotEmpty) {
-        _handleSharedFiles(value);
-      }
-    }, onError: (err) {
-      print("getIntentDataStream error: $err");
-    });
-
-    // For sharing files when the app is closed
-    ReceiveSharingIntent.instance.getInitialMedia().then((List<SharedMediaFile> value) {
-      if (value.isNotEmpty) {
-        _handleSharedFiles(value);
-      }
-    });
+  void _addLog(String message, {bool isError = false}) {
+    LogManager().addLog(message, isError: isError);
   }
 
-  void _handleSharedFiles(List<SharedMediaFile> files) {
-    // Only process the first file for now, and check extension
-    for (var file in files) {
-      if (file.path.toLowerCase().endsWith('.fit')) {
-        _confirmAndUpload(File(file.path));
-        break; // Only upload one file at a time
-      } else {
-        setState(() {
-          _status = 'Received file is not a .FIT file: ${file.path.split('/').last}';
-        });
-      }
-    }
-  }
-
-  Future<void> _confirmAndUpload(File file) async {
-    if (!_isConnected) {
-      setState(() {
-        _status = 'Please connect to Strava first to upload ${file.path.split('/').last}';
-      });
-      return;
-    }
-
-    // Show dialog or just upload? Let's show a dialog for better UX
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Upload Shared File?'),
-        content: Text('Do you want to upload "${file.path.split('/').last}" to Strava?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _uploadFile(file);
-            },
-            child: const Text('Upload'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _uploadFile(File file) async {
-      setState(() {
-        _isUploading = true;
-        _uploadResult = null;
-        _status = 'Uploading ${file.path.split('/').last}...';
-      });
-
-      try {
-        final resultMsg = await _stravaService.uploadFitFile(file);
-        setState(() {
-          _uploadResult = resultMsg;
-          _status = 'Upload Complete';
-        });
-      } catch (e) {
-        setState(() {
-          _uploadResult = 'Error: $e';
-          _status = 'Upload Failed';
-        });
-      } finally {
-        setState(() {
-          _isUploading = false;
-        });
-      }
-  }
+  // --- Initialization & Listeners ---
 
   Future<void> _initStrava() async {
-    await _stravaService.init();
-    setState(() {
-      _isConnected = _stravaService.isAuthenticated;
-      _status = _isConnected ? 'Connected to Strava' : 'Not Connected';
-    });
+    try {
+      await _stravaService.init();
+      setState(() {
+        _isConnected = _stravaService.isAuthenticated;
+      });
+      if (_isConnected) {
+        _addLog("Connected to Strava session.");
+      } else {
+        _addLog("Welcome! Please connect to Strava.");
+      }
+    } catch (e) {
+      _addLog("Failed to initialize Strava service: $e", isError: true);
+    }
   }
 
   void _initDeepLinks() {
     _sub = _appLinks.uriLinkStream.listen((uri) {
-      if (uri.toString().startsWith('starvaauto://localhost')) {
+      _addLog("Received link: $uri");
+      if (uri.scheme == 'starvaauto') {
         _handleAuthCallback(uri);
+      } else if (uri.scheme == 'file') {
+        // Handle file open request (iOS "Open with...")
+        try {
+          final filePath = uri.toFilePath();
+          if (filePath.toLowerCase().endsWith('.fit')) {
+            _addLog("Detected FIT file from link: $filePath");
+            // Delay slightly to ensure UI is ready if app was just launched
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted) _showUploadDialog(File(filePath));
+            });
+          } else {
+            _addLog("Ignored non-FIT file link: ${uri.pathSegments.last}", isError: true);
+          }
+        } catch (e) {
+          _addLog("Error parsing file link: $e", isError: true);
+        }
       }
+    }, onError: (err) {
+      _addLog("Deep link error: $err", isError: true);
     });
   }
 
-  Future<void> _handleAuthCallback(Uri uri) async {
-    setState(() {
-      _status = 'Authorizing...';
+  void _initSharingIntent() {
+    // While running
+    _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((List<SharedMediaFile> value) {
+      if (value.isNotEmpty) _handleSharedFiles(value);
+    }, onError: (err) {
+      _addLog("Sharing intent error: $err", isError: true);
     });
 
+    // Initial launch
+    ReceiveSharingIntent.instance.getInitialMedia().then((List<SharedMediaFile> value) {
+      if (value.isNotEmpty) _handleSharedFiles(value);
+    });
+  }
+
+  // --- Logic ---
+
+  Future<void> _handleAuthCallback(Uri uri) async {
+    _addLog("Processing authorization...");
     try {
-      final code = uri.queryParameters['code'];
-      if (code != null) {
-        // Exchange code for token
-        // 注意：StravaService._exchangeToken 是私有的，需要公开或者通过 handleAuthCallback 调用
-        // 这里假设 StravaService 内部处理
-        // 为了简单，我需要在 StravaService 中暴露一个方法，或者让 handleAuthCallback 处理所有逻辑
-        // 我已经在 StravaService 中实现了 handleAuthCallback，但是它需要 url 字符串
-        // 这里直接调用 _stravaService.handleAuthCallback
-        
-        // Wait, StravaService.handleAuthCallback takes a string URL.
-        // Let's modify StravaService to handle the code exchange directly if we pass the code, 
-        // or just use the URL string.
-        
-        // Let's assume handleAuthCallback handles everything.
-        // But wait, the previous implementation of handleAuthCallback returns a Future<bool>.
-        
-        // Re-checking StravaService implementation...
-        // It has `Future<bool> handleAuthCallback(String url)` which parses the URL.
-        // So I can pass uri.toString()
-        
-        final success = await _stravaService.handleAuthCallback(uri.toString());
-        
+      final success = await _stravaService.handleAuthCallback(uri.toString());
+      if (mounted) {
         setState(() {
           _isConnected = success;
-          _status = success ? 'Connected successfully!' : 'Authorization failed.';
         });
-      } else {
-        setState(() {
-          _status = 'Authorization denied or invalid response.';
-        });
+        if (success) {
+          _addLog("Authorization successful! Ready to upload.");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Connected to Strava successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          _addLog("Authorization failed.", isError: true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Authorization failed. Check logs.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
-      setState(() {
-        _status = 'Error during auth: $e';
-      });
+      _addLog("Auth error: $e", isError: true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Connection Error: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
   Future<void> _connectToStrava() async {
     if (!_stravaService.hasCredentials) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please configure Client ID and Secret in lib/secrets.dart')),
-      );
+      _addLog("Missing Client ID/Secret configuration.", isError: true);
       return;
     }
-
     try {
       final url = _stravaService.getAuthorizationUrl();
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
+        _addLog("Launched Strava login...");
       } else {
-        setState(() {
-          _status = 'Could not launch browser for auth.';
-        });
+        _addLog("Could not launch browser.", isError: true);
       }
     } catch (e) {
-      setState(() {
-        _status = 'Error initiating auth: $e';
-      });
+      _addLog("Auth launch error: $e", isError: true);
     }
   }
 
@@ -238,114 +349,479 @@ class _MyHomePageState extends State<MyHomePage> {
     await _stravaService.logout();
     setState(() {
       _isConnected = false;
-      _status = 'Disconnected';
     });
+    _addLog("Disconnected from Strava.");
   }
 
-  Future<void> _pickAndUploadFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['fit'],
-    );
-
-    if (result != null) {
-      _uploadFile(File(result.files.single.path!));
+  void _handleSharedFiles(List<SharedMediaFile> files) {
+    _addLog("Received shared files: ${files.length}");
+    for (var file in files) {
+      _addLog("Checking file: ${file.path}");
+      if (file.path.toLowerCase().endsWith('.fit')) {
+        _showUploadDialog(File(file.path));
+        break; 
+      } else {
+        _addLog("Ignored non-FIT file: ${file.path.split('/').last}", isError: true);
+      }
     }
   }
 
+  Future<void> _pickAndUploadFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['fit'],
+      );
+
+      if (result != null && result.files.isNotEmpty && result.files.single.path != null) {
+        _uploadFile(File(result.files.single.path!));
+      }
+    } catch (e) {
+      _addLog("File picker error: $e", isError: true);
+    }
+  }
+
+  void _showUploadDialog(File file) {
+    if (!_isConnected) {
+      _addLog("Please connect to Strava to upload ${file.path.split('/').last}", isError: true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please connect to Strava first.')),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              "Upload Activity?",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.fitness_center, color: Color(0xFFFC4C02)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      file.path.split('/').last,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text("Cancel"),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _uploadFile(file);
+                    },
+                    child: const Text("Upload Now"),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _uploadFile(File file) async {
+    File uploadFile = file;
+    
+    // iOS Sandboxing Fix: Copy file to app's temp directory
+    if (Platform.isIOS) {
+      try {
+        final tempDir = await getTemporaryDirectory();
+        final newPath = '${tempDir.path}/${file.path.split('/').last}';
+        final newFile = File(newPath);
+        
+        // Read bytes from the original (restricted) path and write to our temp path
+        final bytes = await file.readAsBytes();
+        await newFile.writeAsBytes(bytes);
+        
+        uploadFile = newFile;
+        _addLog("Copied file to temp: $newPath");
+      } catch (e) {
+        _addLog("Failed to copy file: $e", isError: true);
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text('Cannot access file: ${file.path}')),
+           );
+        }
+        return;
+      }
+    }
+
+    setState(() {
+      _isUploading = true;
+    });
+    Navigator.of(context).pop(); // Close dialog
+    
+    final fileName = uploadFile.path.split('/').last;
+    _addLog("Starting upload: $fileName...");
+
+    try {
+      final resultMsg = await _stravaService.uploadFitFile(uploadFile);
+      _addLog("Success: $resultMsg");
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Uploaded $fileName successfully!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      _addLog("Upload failed: $e", isError: true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload $fileName'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  // --- UI Components ---
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            tooltip: "Settings",
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+          if (_isConnected)
+            IconButton(
+              icon: const Icon(Icons.logout_rounded),
+              tooltip: "Disconnect",
+              onPressed: _disconnect,
+            ),
+        ],
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            // Status Card
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _buildStatusCard(theme),
+            ),
+            
+            const SizedBox(height: 30),
+            
+            // Main Action Area
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildMainActionArea(theme),
+              ),
+            ),
+            
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusCard(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: _isConnected
+              ? [const Color(0xFFFC4C02), const Color(0xFFFF8243)]
+              : [theme.cardColor, theme.cardColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: _isConnected ? const Color(0xFFFC4C02).withOpacity(0.3) : Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _isConnected ? Icons.check_rounded : Icons.link_off_rounded,
+              color: _isConnected ? Colors.white : theme.iconTheme.color,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isConnected ? "Connected" : "Not Connected",
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: _isConnected ? Colors.white : theme.textTheme.titleMedium?.color,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  _isConnected ? "Ready to sync activities" : "Connect to Strava to start",
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: _isConnected ? Colors.white.withOpacity(0.9) : theme.hintColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!_isConnected)
+            ElevatedButton(
+              onPressed: _connectToStrava,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFC4C02),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text("Connect"),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainActionArea(ThemeData theme) {
+    if (!_isConnected) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.lock_outline_rounded, size: 48, color: theme.disabledColor),
+            const SizedBox(height: 16),
+            Text(
+              "Please connect to unlock upload",
+              style: theme.textTheme.bodyLarge?.copyWith(color: theme.disabledColor),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_isUploading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ScaleTransition(
+              scale: _pulseAnimation,
+              child: Container(
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFC4C02).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.cloud_upload_rounded, size: 60, color: Color(0xFFFC4C02)),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Uploading...",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: _pickAndUploadFile,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: theme.dividerColor.withOpacity(0.5),
+            style: BorderStyle.none,
+          ),
+          boxShadow: [
+             BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: CustomPaint(
+          painter: DashedBorderPainter(
+            color: theme.dividerColor,
+            strokeWidth: 2,
+            gap: 10,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              // Settings Section
-              if (!_isConnected) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const Text('Strava Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _connectToStrava,
-                          child: const Text('Connect with Strava'),
-                        ),
-                      ],
-                    ),
-                  ),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: theme.scaffoldBackgroundColor,
+                  shape: BoxShape.circle,
                 ),
-              ] else ...[
-                 Card(
-                  color: Colors.green.shade50,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.check_circle, color: Colors.green, size: 48),
-                        const SizedBox(height: 10),
-                        const Text('Connected to Strava', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 10),
-                        OutlinedButton(
-                          onPressed: _disconnect,
-                          child: const Text('Disconnect'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              
-              const SizedBox(height: 30),
-
-              // Status Display
-              Text(
-                _status,
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.center,
+                child: Icon(Icons.add_rounded, size: 40, color: theme.colorScheme.primary),
               ),
-
-              const SizedBox(height: 30),
-
-              // Upload Section
-              if (_isConnected) ...[
-                if (_isUploading)
-                  const CircularProgressIndicator()
-                else
-                  ElevatedButton.icon(
-                    onPressed: _pickAndUploadFile,
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text('Select .FIT File to Upload'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                      textStyle: const TextStyle(fontSize: 18),
-                    ),
-                  ),
-                
-                if (_uploadResult != null) ...[
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(_uploadResult!),
-                  ),
-                ]
-              ],
+              const SizedBox(height: 20),
+              Text(
+                "Tap to Select .FIT File",
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "or share from other apps",
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+}
+
+class DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double gap;
+
+  DashedBorderPainter({required this.color, this.strokeWidth = 1.0, this.gap = 5.0});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final Path path = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        const Radius.circular(24),
+      ));
+
+    final Path dashedPath = _dashPath(path, dashArray: CircularIntervalList<double>([10, gap]));
+    canvas.drawPath(dashedPath, paint);
+  }
+
+  Path _dashPath(Path source, {required CircularIntervalList<double> dashArray}) {
+    final Path dest = Path();
+    for (final ui.PathMetric metric in source.computeMetrics()) {
+      double distance = 0.0;
+      bool draw = true;
+      while (distance < metric.length) {
+        final double len = dashArray.next;
+        if (draw) {
+          dest.addPath(metric.extractPath(distance, distance + len), Offset.zero);
+        }
+        distance += len;
+        draw = !draw;
+      }
+    }
+    return dest;
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class CircularIntervalList<T> {
+  final List<T> _values;
+  int _index = 0;
+
+  CircularIntervalList(this._values);
+
+  T get next {
+    if (_index >= _values.length) {
+      _index = 0;
+    }
+    return _values[_index++];
   }
 }

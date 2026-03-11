@@ -43,6 +43,9 @@ class StravaService {
 
   Future<bool> handleAuthCallback(String url) async {
     final uri = Uri.parse(url);
+    if (uri.queryParameters.containsKey('error')) {
+      throw Exception('Auth error: ${uri.queryParameters['error']}');
+    }
     if (uri.queryParameters.containsKey('code')) {
       final code = uri.queryParameters['code'];
       return await _exchangeToken(code!);
@@ -63,8 +66,7 @@ class StravaService {
       await _saveTokens(data);
       return true;
     } else {
-      print('Token exchange failed: ${response.body}');
-      return false;
+      throw Exception('Token exchange failed: ${response.body}');
     }
   }
 
@@ -117,11 +119,15 @@ class StravaService {
 
     var request = http.MultipartRequest('POST', Uri.parse(_uploadUrl));
     request.headers['Authorization'] = 'Bearer $accessToken';
-    request.files.add(await http.MultipartFile.fromPath(
+    
+    // Read file bytes directly to avoid path permission issues
+    final fileBytes = await file.readAsBytes();
+    request.files.add(http.MultipartFile.fromBytes(
       'file',
-      file.path,
+      fileBytes,
       filename: file.path.split('/').last,
     ));
+    
     request.fields['data_type'] = 'fit';
 
     var streamedResponse = await request.send();
