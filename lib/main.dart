@@ -586,19 +586,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            tooltip: AppLocalizations.of(context)!.settingsTooltip,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -686,14 +673,27 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               ],
             ),
           ),
-          if (_isConnected)
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            color: _isConnected ? Colors.white : theme.iconTheme.color,
+            tooltip: AppLocalizations.of(context)!.settingsTooltip,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+          if (_isConnected) ...[
+            const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.logout_rounded),
               color: Colors.white,
               tooltip: AppLocalizations.of(context)!.disconnectTooltip,
               onPressed: _confirmDisconnect,
             ),
-          if (!_isConnected)
+          ],
+          if (!_isConnected) ...[
+            const SizedBox(width: 8),
             ElevatedButton(
               onPressed: _connectToStrava,
               style: ElevatedButton.styleFrom(
@@ -705,6 +705,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               ),
               child: Text(AppLocalizations.of(context)!.connectShort),
             ),
+          ],
         ],
       ),
     );
