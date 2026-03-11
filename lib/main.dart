@@ -11,7 +11,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'strava_service.dart';
 import 'log_manager.dart';
 import 'settings_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'theme_manager.dart';
+import 'locale_manager.dart';
 
 void main() {
   runApp(const UpstraApp());
@@ -23,10 +26,21 @@ class UpstraApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: ThemeManager(),
+      animation: Listenable.merge([ThemeManager(), LocaleManager()]),
       builder: (context, child) {
         return MaterialApp(
-          title: '小四爪',
+          onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+          locale: LocaleManager().locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'), // English
+            Locale('zh'), // Chinese
+          ],
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             useMaterial3: true,
@@ -155,19 +169,19 @@ class _AuthCallbackPageState extends State<AuthCallbackPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: Color(0xFFFC4C02),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              "Finalizing connection...",
-              style: TextStyle(color: Colors.black54),
+              AppLocalizations.of(context)!.finalizingConnection,
+              style: const TextStyle(color: Colors.black54),
             ),
           ],
         ),
@@ -298,16 +312,16 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         if (success) {
           _addLog("Authorization successful! Ready to upload.");
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Connected to Strava successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.connectedSuccess),
               backgroundColor: Colors.green,
             ),
           );
         } else {
           _addLog("Authorization failed.", isError: true);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Authorization failed. Check logs.'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.authFailed),
               backgroundColor: Colors.red,
             ),
           );
@@ -318,7 +332,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Connection Error: $e'),
+            content: Text(AppLocalizations.of(context)!.connectionError(e.toString())),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -342,6 +356,30 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       }
     } catch (e) {
       _addLog("Auth launch error: $e", isError: true);
+    }
+  }
+
+  Future<void> _confirmDisconnect() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.logoutConfirmationTitle),
+        content: Text(AppLocalizations.of(context)!.logoutConfirmationMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancelButton),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppLocalizations.of(context)!.confirmButton),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      _disconnect();
     }
   }
 
@@ -385,7 +423,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     if (!_isConnected) {
       _addLog("Please connect to Strava to upload ${file.path.split('/').last}", isError: true);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please connect to Strava first.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseConnectFirst)),
       );
       return;
     }
@@ -411,7 +449,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              "Upload Activity?",
+              AppLocalizations.of(context)!.uploadActivityTitle,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -451,7 +489,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text("Cancel"),
+                    child: Text(AppLocalizations.of(context)!.cancelButton),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -461,7 +499,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                       Navigator.pop(context);
                       _uploadFile(file);
                     },
-                    child: const Text("Upload Now"),
+                    child: Text(AppLocalizations.of(context)!.uploadNowButton),
                   ),
                 ),
               ],
@@ -493,7 +531,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         _addLog("Failed to copy file: $e", isError: true);
         if (mounted) {
            ScaffoldMessenger.of(context).showSnackBar(
-             SnackBar(content: Text('Cannot access file: ${file.path}')),
+             SnackBar(content: Text(AppLocalizations.of(context)!.cannotAccessFile(file.path))),
            );
         }
         return;
@@ -515,7 +553,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Uploaded $fileName successfully!'),
+            content: Text(AppLocalizations.of(context)!.uploadFileSuccess(fileName)),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -526,7 +564,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to upload $fileName'),
+            content: Text(AppLocalizations.of(context)!.uploadFileFailed(fileName)),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -552,19 +590,13 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_rounded),
-            tooltip: "Settings",
+            tooltip: AppLocalizations.of(context)!.settingsTooltip,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
             },
           ),
-          if (_isConnected)
-            IconButton(
-              icon: const Icon(Icons.logout_rounded),
-              tooltip: "Disconnect",
-              onPressed: _disconnect,
-            ),
         ],
       ),
       body: SafeArea(
@@ -635,14 +667,18 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isConnected ? "Connected" : "Not Connected",
+                  _isConnected 
+                    ? AppLocalizations.of(context)!.statusConnected 
+                    : AppLocalizations.of(context)!.statusNotConnected,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: _isConnected ? Colors.white : theme.textTheme.titleMedium?.color,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  _isConnected ? "Ready to sync activities" : "Connect to Strava to start",
+                  _isConnected 
+                    ? AppLocalizations.of(context)!.readyToSync 
+                    : AppLocalizations.of(context)!.connectToStart,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: _isConnected ? Colors.white.withOpacity(0.9) : theme.hintColor,
                   ),
@@ -650,6 +686,13 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               ],
             ),
           ),
+          if (_isConnected)
+            IconButton(
+              icon: const Icon(Icons.logout_rounded),
+              color: Colors.white,
+              tooltip: AppLocalizations.of(context)!.disconnectTooltip,
+              onPressed: _confirmDisconnect,
+            ),
           if (!_isConnected)
             ElevatedButton(
               onPressed: _connectToStrava,
@@ -660,7 +703,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text("Connect"),
+              child: Text(AppLocalizations.of(context)!.connectShort),
             ),
         ],
       ),
@@ -676,7 +719,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             Icon(Icons.lock_outline_rounded, size: 48, color: theme.disabledColor),
             const SizedBox(height: 16),
             Text(
-              "Please connect to unlock upload",
+              AppLocalizations.of(context)!.unlockUpload,
               style: theme.textTheme.bodyLarge?.copyWith(color: theme.disabledColor),
             ),
           ],
@@ -701,9 +744,9 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              "Uploading...",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            Text(
+              AppLocalizations.of(context)!.uploading,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -748,14 +791,14 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               ),
               const SizedBox(height: 20),
               Text(
-                "Tap to Select .FIT File",
+                AppLocalizations.of(context)!.tapToSelect,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                "or share from other apps",
+                AppLocalizations.of(context)!.orShare,
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
               ),
             ],

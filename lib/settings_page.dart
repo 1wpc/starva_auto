@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'log_manager.dart';
 import 'theme_manager.dart';
+import 'locale_manager.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -11,26 +13,26 @@ class SettingsPage extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Settings"),
+        title: Text(AppLocalizations.of(context)!.settingsTitle),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildSectionHeader(theme, "GENERAL"),
+          _buildSectionHeader(theme, AppLocalizations.of(context)!.generalSection),
           AnimatedBuilder(
             animation: ThemeManager(),
             builder: (context, _) {
               final themeMode = ThemeManager().themeMode;
-              String themeSubtitle = "System Default";
-              if (themeMode == ThemeMode.light) themeSubtitle = "Light";
-              if (themeMode == ThemeMode.dark) themeSubtitle = "Dark";
+              String themeSubtitle = AppLocalizations.of(context)!.themeSystem;
+              if (themeMode == ThemeMode.light) themeSubtitle = AppLocalizations.of(context)!.themeLight;
+              if (themeMode == ThemeMode.dark) themeSubtitle = AppLocalizations.of(context)!.themeDark;
               
               return Card(
                 clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   leading: const Icon(Icons.palette_outlined, color: Color(0xFFFC4C02)),
-                  title: const Text("Theme"),
+                  title: Text(AppLocalizations.of(context)!.themeTitle),
                   subtitle: Text(themeSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _showThemeDialog(context),
@@ -38,14 +40,35 @@ class SettingsPage extends StatelessWidget {
               );
             },
           ),
+          const SizedBox(height: 16),
+          AnimatedBuilder(
+            animation: LocaleManager(),
+            builder: (context, _) {
+              final locale = LocaleManager().locale;
+              String languageSubtitle = AppLocalizations.of(context)!.languageSystem;
+              if (locale?.languageCode == 'en') languageSubtitle = AppLocalizations.of(context)!.languageEn;
+              if (locale?.languageCode == 'zh') languageSubtitle = AppLocalizations.of(context)!.languageZh;
+              
+              return Card(
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  leading: const Icon(Icons.language, color: Color(0xFFFC4C02)),
+                  title: Text(AppLocalizations.of(context)!.languageTitle),
+                  subtitle: Text(languageSubtitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _showLanguageDialog(context),
+                ),
+              );
+            },
+          ),
           const SizedBox(height: 24),
-          _buildSectionHeader(theme, "DIAGNOSTICS"),
+          _buildSectionHeader(theme, AppLocalizations.of(context)!.diagnosticsSection),
           Card(
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               leading: const Icon(Icons.history_rounded, color: Color(0xFFFC4C02)),
-              title: const Text("Activity Logs"),
-              subtitle: const Text("View application events and errors"),
+              title: Text(AppLocalizations.of(context)!.activityLogsTitle),
+              subtitle: Text(AppLocalizations.of(context)!.activityLogsSubtitle),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.push(
@@ -56,20 +79,20 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader(theme, "ABOUT"),
+          _buildSectionHeader(theme, AppLocalizations.of(context)!.aboutSection),
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.info_outline, color: Color(0xFFFC4C02)),
-                  title: const Text("Version"),
+                  title: Text(AppLocalizations.of(context)!.versionTitle),
                   trailing: const Text("1.0.0"),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.code, color: Color(0xFFFC4C02)),
-                  title: const Text("Open Source"),
+                  title: Text(AppLocalizations.of(context)!.openSourceTitle),
                   trailing: const Icon(Icons.open_in_new, size: 16),
                   onTap: () {
                     // Future: Open GitHub repo
@@ -105,6 +128,15 @@ class SettingsPage extends StatelessWidget {
       },
     );
   }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const _LanguageDialog();
+      },
+    );
+  }
 }
 
 class _ThemeDialog extends StatelessWidget {
@@ -113,19 +145,19 @@ class _ThemeDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Select Theme"),
+      title: Text(AppLocalizations.of(context)!.selectThemeTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildOption(context, "System Default", ThemeMode.system),
-          _buildOption(context, "Light", ThemeMode.light),
-          _buildOption(context, "Dark", ThemeMode.dark),
+          _buildOption(context, AppLocalizations.of(context)!.themeSystem, ThemeMode.system),
+          _buildOption(context, AppLocalizations.of(context)!.themeLight, ThemeMode.light),
+          _buildOption(context, AppLocalizations.of(context)!.themeDark, ThemeMode.dark),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Cancel"),
+          child: Text(AppLocalizations.of(context)!.cancelButton),
         ),
       ],
     );
@@ -150,6 +182,50 @@ class _ThemeDialog extends StatelessWidget {
   }
 }
 
+class _LanguageDialog extends StatelessWidget {
+  const _LanguageDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(AppLocalizations.of(context)!.selectLanguageTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildOption(context, AppLocalizations.of(context)!.languageSystem, null),
+          _buildOption(context, AppLocalizations.of(context)!.languageEn, const Locale('en')),
+          _buildOption(context, AppLocalizations.of(context)!.languageZh, const Locale('zh')),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppLocalizations.of(context)!.cancelButton),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOption(BuildContext context, String label, Locale? locale) {
+    final currentLocale = LocaleManager().locale;
+    // Simple comparison for locale. If both are null, it's system.
+    // If one is null and other isn't, false.
+    // If both not null, compare languageCode.
+    final isSelected = currentLocale?.languageCode == locale?.languageCode;
+    
+    return RadioListTile<String?>(
+      title: Text(label),
+      value: locale?.languageCode,
+      groupValue: currentLocale?.languageCode,
+      activeColor: const Color(0xFFFC4C02),
+      onChanged: (value) {
+        LocaleManager().setLocale(locale);
+        Navigator.pop(context);
+      },
+    );
+  }
+}
+
 class ActivityLogPage extends StatelessWidget {
   const ActivityLogPage({super.key});
 
@@ -160,11 +236,11 @@ class ActivityLogPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Activity Logs"),
+        title: Text(AppLocalizations.of(context)!.activityLogsTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: "Clear Logs",
+            tooltip: AppLocalizations.of(context)!.clearLogsTooltip,
             onPressed: () {
               logManager.clearLogs();
             },
@@ -184,7 +260,7 @@ class ActivityLogPage extends StatelessWidget {
                   Icon(Icons.history_toggle_off, size: 64, color: theme.disabledColor.withOpacity(0.5)),
                   const SizedBox(height: 16),
                   Text(
-                    "No logs available",
+                    AppLocalizations.of(context)!.noLogsAvailable,
                     style: theme.textTheme.titleMedium?.copyWith(color: theme.disabledColor),
                   ),
                 ],

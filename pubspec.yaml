@@ -12,7 +12,10 @@ dependencies:
   file_picker: ^10.3.10
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   http: ^1.6.0
+  intl: ^0.20.2
   path_provider: ^2.1.5
   receive_sharing_intent: ^1.8.1
   shared_preferences: ^2.5.4
@@ -45,4 +48,5 @@ flutter_launcher_icons:
     image_path: "assets/icon.png"
 
 flutter:
+  generate: true
   uses-material-design: true

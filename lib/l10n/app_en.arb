@@ -1,0 +1,84 @@
+{
+  "appTitle": "Starva Auto",
+  "settingsTitle": "Settings",
+  "generalSection": "GENERAL",
+  "themeTitle": "Theme",
+  "themeSystem": "System Default",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "selectThemeTitle": "Select Theme",
+  "languageTitle": "Language",
+  "languageSystem": "System Default",
+  "languageEn": "English",
+  "languageZh": "Chinese",
+  "selectLanguageTitle": "Select Language",
+  "logoutConfirmationTitle": "Disconnect?",
+  "logoutConfirmationMessage": "Are you sure you want to disconnect from Strava?",
+  "confirmButton": "Confirm",
+  "cancelButton": "Cancel",
+  "diagnosticsSection": "DIAGNOSTICS",
+  "activityLogsTitle": "Activity Logs",
+  "activityLogsSubtitle": "View application events and errors",
+  "aboutSection": "ABOUT",
+  "versionTitle": "Version",
+  "openSourceTitle": "Open Source",
+  "clearLogsTooltip": "Clear Logs",
+  "noLogsAvailable": "No logs available",
+  "finalizingConnection": "Finalizing connection...",
+  "connectedSuccess": "Connected to Strava successfully!",
+  "authFailed": "Authorization failed. Check logs.",
+  "connectionError": "Connection Error: {error}",
+  "@connectionError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "cannotAccessFile": "Cannot access file: {path}",
+  "@cannotAccessFile": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadSuccess": "Upload successful!",
+  "uploadFailed": "Upload failed. Check logs.",
+  "uploadFileSuccess": "Uploaded {fileName} successfully!",
+  "@uploadFileSuccess": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadFileFailed": "Failed to upload {fileName}",
+  "@uploadFileFailed": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsTooltip": "Settings",
+  "disconnectTooltip": "Disconnect",
+  "statusConnected": "Connected",
+  "statusNotConnected": "Not Connected",
+  "statusReady": "Ready to upload activities",
+  "statusPleaseConnect": "Please connect to Strava to start",
+  "connectButton": "Connect to Strava",
+  "uploadFileButton": "Upload File",
+  "uploadFileHint": "Select a FIT file to upload",
+  "uploadActivityTitle": "Upload Activity?",
+  "uploadNowButton": "Upload Now",
+  "pleaseConnectFirst": "Please connect to Strava first.",
+  "readyToSync": "Ready to sync activities",
+  "connectToStart": "Connect to Strava to start",
+  "connectShort": "Connect",
+  "unlockUpload": "Please connect to unlock upload",
+  "uploading": "Uploading...",
+  "tapToSelect": "Tap to Select .FIT File",
+  "orShare": "or share from other apps"
+}
+
