@@ -430,7 +430,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       );
 
       if (result != null && result.files.isNotEmpty && result.files.single.path != null) {
-        _uploadFile(File(result.files.single.path!));
+        _showUploadDialog(File(result.files.single.path!));
       }
     } catch (e) {
       _addLog("File picker error: $e", isError: true);
@@ -514,7 +514,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context); // Close dialog first
                       _uploadFile(file);
                     },
                     child: Text(AppLocalizations.of(context)!.uploadNowButton),
@@ -559,7 +559,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     setState(() {
       _isUploading = true;
     });
-    Navigator.of(context).pop(); // Close dialog
+    // Navigator.of(context).pop(); // REMOVED: Dialog should be closed by the caller
     
     final fileName = uploadFile.path.split('/').last;
     _addLog("Starting upload: $fileName...");
