@@ -70,6 +70,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelButton => 'Cancel';
 
   @override
+  String get experimentalSection => 'EXPERIMENTAL';
+
+  @override
+  String get oneLapSyncTitle => 'OneLap Auto Sync';
+
+  @override
+  String get oneLapSyncSubtitle => 'Automatically sync activities from OneLap';
+
+  @override
+  String get oneLapLoginTitle => 'Connect OneLap';
+
+  @override
+  String get oneLapLoginDescription =>
+      'Connect your OneLap account to automatically sync activities to Strava.';
+
+  @override
+  String get accountLabel => 'Account / Phone';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get connectSyncButton => 'Connect & Sync';
+
+  @override
+  String get disconnectAccountButton => 'Disconnect Account';
+
+  @override
+  String get loginSuccess => 'Connected to OneLap successfully!';
+
+  @override
+  String get loginFailed => 'Login failed. Please check your credentials.';
+
+  @override
   String get diagnosticsSection => 'DIAGNOSTICS';
 
   @override

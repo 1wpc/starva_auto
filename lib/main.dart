@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:app_links/app_links.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,8 +17,11 @@ import 'l10n/generated/app_localizations.dart';
 import 'theme_manager.dart';
 import 'locale_manager.dart';
 import 'privacy_policy_page.dart';
+import 'background_service.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  BackgroundService.initialize();
   runApp(const UpstraApp());
 }
 
@@ -51,6 +55,7 @@ class UpstraApp extends StatelessWidget {
             ),
             scaffoldBackgroundColor: const Color(0xFFF7F7F7),
             appBarTheme: const AppBarTheme(
+              systemOverlayStyle: SystemUiOverlayStyle.dark,
               backgroundColor: Colors.transparent,
               elevation: 0,
               centerTitle: true,
@@ -94,6 +99,7 @@ class UpstraApp extends StatelessWidget {
             ),
             scaffoldBackgroundColor: const Color(0xFF121212),
             appBarTheme: const AppBarTheme(
+              systemOverlayStyle: SystemUiOverlayStyle.light,
               backgroundColor: Colors.transparent,
               elevation: 0,
               centerTitle: true,

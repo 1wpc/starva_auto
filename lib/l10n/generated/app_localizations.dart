@@ -218,6 +218,72 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancelButton;
 
+  /// No description provided for @experimentalSection.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPERIMENTAL'**
+  String get experimentalSection;
+
+  /// No description provided for @oneLapSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'OneLap Auto Sync'**
+  String get oneLapSyncTitle;
+
+  /// No description provided for @oneLapSyncSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically sync activities from OneLap'**
+  String get oneLapSyncSubtitle;
+
+  /// No description provided for @oneLapLoginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect OneLap'**
+  String get oneLapLoginTitle;
+
+  /// No description provided for @oneLapLoginDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your OneLap account to automatically sync activities to Strava.'**
+  String get oneLapLoginDescription;
+
+  /// No description provided for @accountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account / Phone'**
+  String get accountLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @connectSyncButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect & Sync'**
+  String get connectSyncButton;
+
+  /// No description provided for @disconnectAccountButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect Account'**
+  String get disconnectAccountButton;
+
+  /// No description provided for @loginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to OneLap successfully!'**
+  String get loginSuccess;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed. Please check your credentials.'**
+  String get loginFailed;
+
   /// No description provided for @diagnosticsSection.
   ///
   /// In en, this message translates to:

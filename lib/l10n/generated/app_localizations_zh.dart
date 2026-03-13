@@ -69,6 +69,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancelButton => '取消';
 
   @override
+  String get experimentalSection => '实验性功能';
+
+  @override
+  String get oneLapSyncTitle => '顽鹿自动同步';
+
+  @override
+  String get oneLapSyncSubtitle => '自动同步顽鹿骑行活动';
+
+  @override
+  String get oneLapLoginTitle => '连接顽鹿';
+
+  @override
+  String get oneLapLoginDescription => '连接您的顽鹿账号以自动同步活动到 Strava。';
+
+  @override
+  String get accountLabel => '账号 / 手机号';
+
+  @override
+  String get passwordLabel => '密码';
+
+  @override
+  String get connectSyncButton => '连接并同步';
+
+  @override
+  String get disconnectAccountButton => '断开账号';
+
+  @override
+  String get loginSuccess => '成功连接顽鹿！';
+
+  @override
+  String get loginFailed => '登录失败，请检查账号密码。';
+
+  @override
   String get diagnosticsSection => '诊断';
 
   @override

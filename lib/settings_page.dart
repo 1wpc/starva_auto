@@ -4,6 +4,8 @@ import 'log_manager.dart';
 import 'theme_manager.dart';
 import 'locale_manager.dart';
 import 'privacy_policy_page.dart';
+import 'onelap_login_page.dart';
+import 'onelap_manager.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -58,6 +60,42 @@ class SettingsPage extends StatelessWidget {
                   subtitle: Text(languageSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _showLanguageDialog(context),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+          _buildSectionHeader(theme, AppLocalizations.of(context)!.experimentalSection),
+          AnimatedBuilder(
+            animation: Listenable.merge([OneLapManager(), LocaleManager()]),
+            builder: (context, _) {
+              final isConnected = OneLapManager().username != null;
+              final subtitle = isConnected 
+                  ? OneLapManager().username! 
+                  : AppLocalizations.of(context)!.oneLapSyncSubtitle;
+
+              return Card(
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  leading: const Icon(Icons.sync_rounded, color: Color(0xFFFC4C02)),
+                  title: Text(AppLocalizations.of(context)!.oneLapSyncTitle),
+                  subtitle: Text(subtitle),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isConnected) 
+                         const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                      if (isConnected)
+                         const SizedBox(width: 8),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const OneLapLoginPage()),
+                    );
+                  },
                 ),
               );
             },
