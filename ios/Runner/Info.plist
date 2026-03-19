@@ -132,6 +132,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>此应用需要您的同意才能访问相册，以便您可以上传或保存相关图片内容。</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Used for local network discovery and debugging</string>
 	<key>NSBonjourServices</key>

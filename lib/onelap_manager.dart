@@ -1,12 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:crypto/crypto.dart';
-import 'package:uuid/uuid.dart';
-import 'package:http/http.dart' as http;
 
 // Duplicate service logic here to make it self-contained for background tasks if needed, 
 // or just import the service. Importing is better.
@@ -75,10 +70,12 @@ class OneLapManager extends ChangeNotifier {
     }
   }
 
-  Future<void> syncNow() async {
-    if (_isSyncing) return;
+  Future<int> syncNow() async {
+    if (_isSyncing) return 0;
     _isSyncing = true;
     notifyListeners();
+
+    int syncedCount = 0;
 
     try {
       // 1. Get credentials
@@ -87,7 +84,7 @@ class OneLapManager extends ChangeNotifier {
 
       if (username == null || password == null) {
         LogManager().addLog("OneLap Sync Skipped: No credentials.");
-        return;
+        throw Exception("No credentials found. Please login again.");
       }
 
       // 2. Login
@@ -95,7 +92,7 @@ class OneLapManager extends ChangeNotifier {
       final loginResult = await _service.login(username, password);
       if (loginResult['success'] != true) {
         LogManager().addLog("OneLap Sync Failed: Login error.");
-        return;
+        throw Exception("Login failed: ${loginResult['msg'] ?? 'Unknown error'}");
       }
 
       // 3. Fetch list
@@ -109,7 +106,7 @@ class OneLapManager extends ChangeNotifier {
 
       if (newActivities.isEmpty) {
         LogManager().addLog("OneLap Sync: No new activities.");
-        return;
+        return 0;
       }
 
       LogManager().addLog("OneLap Sync: Found ${newActivities.length} new activities.");
@@ -136,6 +133,8 @@ class OneLapManager extends ChangeNotifier {
           syncedIds.add(fileKey);
           await prefs.setStringList('onelap_synced_ids', syncedIds);
           
+          syncedCount++;
+
           // Cleanup
           if (await file.exists()) await file.delete();
           
@@ -144,8 +143,11 @@ class OneLapManager extends ChangeNotifier {
         }
       }
 
+      return syncedCount;
+
     } catch (e) {
       LogManager().addLog("OneLap Sync Error: $e", isError: true);
+      rethrow;
     } finally {
       _isSyncing = false;
       notifyListeners();

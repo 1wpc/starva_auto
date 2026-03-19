@@ -18,12 +18,14 @@
   "cancelButton": "取消",
   "experimentalSection": "实验性功能",
   "oneLapSyncTitle": "顽鹿自动同步",
-  "oneLapSyncSubtitle": "自动同步顽鹿骑行活动",
+  "oneLapSyncSubtitle": "自动同步顽鹿运动记录到 Strava",
+  "backgroundSyncTip": "注意：后台同步依赖系统调度。\n• iOS：手动划掉应用会停止同步，需重新打开应用以激活。\n• Android：建议开启“自启动”并关闭“电池优化”以保证同步稳定。",
   "oneLapLoginTitle": "连接顽鹿",
   "oneLapLoginDescription": "连接您的顽鹿账号以自动同步活动到 Strava。",
   "accountLabel": "账号 / 手机号",
   "passwordLabel": "密码",
   "connectSyncButton": "连接并同步",
+  "reconnectButton": "重新连接",
   "disconnectAccountButton": "断开账号",
   "loginSuccess": "成功连接顽鹿！",
   "loginFailed": "登录失败，请检查账号密码。",
@@ -65,6 +67,17 @@
   "unlockUpload": "请连接以解锁上传",
   "uploading": "正在上传...",
   "tapToSelect": "点击选择 .FIT 文件",
-  "orShare": "或从其他应用分享"
+  "orShare": "或从其他应用分享",
+  "syncNowButton": "立即同步",
+  "syncingMessage": "正在同步...",
+  "syncSuccessMessage": "同步完成！已同步 {count} 个活动。",
+  "@syncSuccessMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncFailedMessage": "同步失败，请检查日志。"
 }
 

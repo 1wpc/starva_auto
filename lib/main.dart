@@ -71,7 +71,7 @@ class UpstraApp extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+                side: BorderSide(color: Colors.grey.withValues(alpha: 0.1), width: 1),
               ),
               color: Colors.white,
             ),
@@ -114,7 +114,7 @@ class UpstraApp extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 1),
               ),
               color: const Color(0xFF1E1E1E),
             ),
@@ -462,7 +462,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -652,7 +652,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: _isConnected ? const Color(0xFFFC4C02).withOpacity(0.3) : Colors.black.withOpacity(0.05),
+            color: _isConnected ? const Color(0xFFFC4C02).withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -663,7 +663,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -691,7 +691,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
                     ? AppLocalizations.of(context)!.readyToSync 
                     : AppLocalizations.of(context)!.connectToStart,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: _isConnected ? Colors.white.withOpacity(0.9) : theme.hintColor,
+                    color: _isConnected ? Colors.white.withValues(alpha: 0.9) : theme.hintColor,
                   ),
                 ),
               ],
@@ -762,7 +762,7 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               child: Container(
                 padding: const EdgeInsets.all(30),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFC4C02).withOpacity(0.1),
+                  color: const Color(0xFFFC4C02).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.cloud_upload_rounded, size: 60, color: Color(0xFFFC4C02)),
@@ -786,12 +786,12 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: theme.dividerColor.withOpacity(0.5),
+            color: theme.dividerColor.withValues(alpha: 0.5),
             style: BorderStyle.none,
           ),
           boxShadow: [
              BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

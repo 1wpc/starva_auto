@@ -197,13 +197,22 @@ class _ThemeDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(AppLocalizations.of(context)!.selectThemeTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildOption(context, AppLocalizations.of(context)!.themeSystem, ThemeMode.system),
-          _buildOption(context, AppLocalizations.of(context)!.themeLight, ThemeMode.light),
-          _buildOption(context, AppLocalizations.of(context)!.themeDark, ThemeMode.dark),
-        ],
+      content: RadioGroup<ThemeMode>(
+        groupValue: ThemeManager().themeMode,
+        onChanged: (value) {
+          if (value != null) {
+            ThemeManager().setThemeMode(value);
+            Navigator.pop(context);
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildOption(context, AppLocalizations.of(context)!.themeSystem, ThemeMode.system),
+            _buildOption(context, AppLocalizations.of(context)!.themeLight, ThemeMode.light),
+            _buildOption(context, AppLocalizations.of(context)!.themeDark, ThemeMode.dark),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -215,20 +224,10 @@ class _ThemeDialog extends StatelessWidget {
   }
 
   Widget _buildOption(BuildContext context, String label, ThemeMode mode) {
-    final currentMode = ThemeManager().themeMode;
-    final isSelected = currentMode == mode;
-    
     return RadioListTile<ThemeMode>(
       title: Text(label),
       value: mode,
-      groupValue: currentMode,
       activeColor: const Color(0xFFFC4C02),
-      onChanged: (value) {
-        if (value != null) {
-          ThemeManager().setThemeMode(value);
-          Navigator.pop(context);
-        }
-      },
     );
   }
 }
@@ -240,13 +239,20 @@ class _LanguageDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(AppLocalizations.of(context)!.selectLanguageTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildOption(context, AppLocalizations.of(context)!.languageSystem, null),
-          _buildOption(context, AppLocalizations.of(context)!.languageEn, const Locale('en')),
-          _buildOption(context, AppLocalizations.of(context)!.languageZh, const Locale('zh')),
-        ],
+      content: RadioGroup<String?>(
+        groupValue: LocaleManager().locale?.languageCode,
+        onChanged: (value) {
+          LocaleManager().setLocale(value != null ? Locale(value) : null);
+          Navigator.pop(context);
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildOption(context, AppLocalizations.of(context)!.languageSystem, null),
+            _buildOption(context, AppLocalizations.of(context)!.languageEn, const Locale('en')),
+            _buildOption(context, AppLocalizations.of(context)!.languageZh, const Locale('zh')),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -258,21 +264,10 @@ class _LanguageDialog extends StatelessWidget {
   }
 
   Widget _buildOption(BuildContext context, String label, Locale? locale) {
-    final currentLocale = LocaleManager().locale;
-    // Simple comparison for locale. If both are null, it's system.
-    // If one is null and other isn't, false.
-    // If both not null, compare languageCode.
-    final isSelected = currentLocale?.languageCode == locale?.languageCode;
-    
     return RadioListTile<String?>(
       title: Text(label),
       value: locale?.languageCode,
-      groupValue: currentLocale?.languageCode,
       activeColor: const Color(0xFFFC4C02),
-      onChanged: (value) {
-        LocaleManager().setLocale(locale);
-        Navigator.pop(context);
-      },
     );
   }
 }
@@ -308,7 +303,7 @@ class ActivityLogPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.history_toggle_off, size: 64, color: theme.disabledColor.withOpacity(0.5)),
+                  Icon(Icons.history_toggle_off, size: 64, color: theme.disabledColor.withValues(alpha: 0.5)),
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(context)!.noLogsAvailable,
@@ -331,12 +326,12 @@ class ActivityLogPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
                     color: log.isError 
-                        ? theme.colorScheme.error.withOpacity(0.2) 
-                        : theme.dividerColor.withOpacity(0.5),
+                        ? theme.colorScheme.error.withValues(alpha: 0.2) 
+                        : theme.dividerColor.withValues(alpha: 0.5),
                   ),
                 ),
                 color: log.isError 
-                    ? theme.colorScheme.errorContainer.withOpacity(0.2)
+                    ? theme.colorScheme.errorContainer.withValues(alpha: 0.2)
                     : theme.cardColor,
                 child: Padding(
                   padding: const EdgeInsets.all(12),

@@ -221,7 +221,7 @@ abstract class AppLocalizations {
   /// No description provided for @experimentalSection.
   ///
   /// In en, this message translates to:
-  /// **'EXPERIMENTAL'**
+  /// **'Experimental Features'**
   String get experimentalSection;
 
   /// No description provided for @oneLapSyncTitle.
@@ -233,8 +233,14 @@ abstract class AppLocalizations {
   /// No description provided for @oneLapSyncSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Automatically sync activities from OneLap'**
+  /// **'Sync OneLap activities to Strava'**
   String get oneLapSyncSubtitle;
+
+  /// No description provided for @backgroundSyncTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: Background sync relies on system scheduling.\n• iOS: Sync stops if you force-close the app. Re-open to activate.\n• Android: Please allow \'Autostart\' and disable \'Battery Optimization\' for reliable sync.'**
+  String get backgroundSyncTip;
 
   /// No description provided for @oneLapLoginTitle.
   ///
@@ -265,6 +271,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect & Sync'**
   String get connectSyncButton;
+
+  /// No description provided for @reconnectButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnect'**
+  String get reconnectButton;
 
   /// No description provided for @disconnectAccountButton.
   ///
@@ -499,6 +511,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'or share from other apps'**
   String get orShare;
+
+  /// No description provided for @syncNowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Now'**
+  String get syncNowButton;
+
+  /// No description provided for @syncingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get syncingMessage;
+
+  /// No description provided for @syncSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync completed! {count} activities synced.'**
+  String syncSuccessMessage(int count);
+
+  /// No description provided for @syncFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed. Check logs.'**
+  String get syncFailedMessage;
 }
 
 class _AppLocalizationsDelegate

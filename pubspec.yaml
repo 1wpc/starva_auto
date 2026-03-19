@@ -1,7 +1,7 @@
 name: starva_auto
 description: "小四爪 - Strava Upload Tool"
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.1.0+2
 
 environment:
   sdk: ^3.11.0
@@ -19,6 +19,7 @@ dependencies:
   http: ^1.6.0
   intl: ^0.20.2
   path_provider: ^2.1.5
+  permission_handler: ^12.0.1
   receive_sharing_intent: ^1.8.1
   shared_preferences: ^2.5.4
   url_launcher: ^6.3.2

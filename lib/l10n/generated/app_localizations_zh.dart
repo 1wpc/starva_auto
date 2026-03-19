@@ -75,7 +75,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get oneLapSyncTitle => '顽鹿自动同步';
 
   @override
-  String get oneLapSyncSubtitle => '自动同步顽鹿骑行活动';
+  String get oneLapSyncSubtitle => '自动同步顽鹿运动记录到 Strava';
+
+  @override
+  String get backgroundSyncTip =>
+      '注意：后台同步依赖系统调度。\n• iOS：手动划掉应用会停止同步，需重新打开应用以激活。\n• Android：建议开启“自启动”并关闭“电池优化”以保证同步稳定。';
 
   @override
   String get oneLapLoginTitle => '连接顽鹿';
@@ -91,6 +95,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get connectSyncButton => '连接并同步';
+
+  @override
+  String get reconnectButton => '重新连接';
 
   @override
   String get disconnectAccountButton => '断开账号';
@@ -216,4 +223,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get orShare => '或从其他应用分享';
+
+  @override
+  String get syncNowButton => '立即同步';
+
+  @override
+  String get syncingMessage => '正在同步...';
+
+  @override
+  String syncSuccessMessage(int count) {
+    return '同步完成！已同步 $count 个活动。';
+  }
+
+  @override
+  String get syncFailedMessage => '同步失败，请检查日志。';
 }

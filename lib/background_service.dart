@@ -1,5 +1,4 @@
 import 'package:workmanager/workmanager.dart';
-import 'package:flutter/foundation.dart';
 import 'onelap_manager.dart';
 import 'log_manager.dart';
 
@@ -31,7 +30,6 @@ class BackgroundService {
   static Future<void> initialize() async {
     await Workmanager().initialize(
       callbackDispatcher,
-      isInDebugMode: kDebugMode,
     );
   }
 

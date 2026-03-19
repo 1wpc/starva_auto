@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'onelap_manager.dart';
 import 'l10n/generated/app_localizations.dart';
 
@@ -24,8 +26,12 @@ class _OneLapLoginPageState extends State<OneLapLoginPage> {
 
   Future<void> _loadCredentials() async {
     await OneLapManager().init();
-    if (OneLapManager().username != null) {
-      _usernameController.text = OneLapManager().username!;
+    if (mounted) {
+      setState(() {
+        if (OneLapManager().username != null) {
+          _usernameController.text = OneLapManager().username!;
+        }
+      });
     }
   }
 
@@ -52,9 +58,57 @@ class _OneLapLoginPageState extends State<OneLapLoginPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context)!.loginSuccess)),
           );
+          
+          // Request battery optimization permission on Android after successful login
+          _requestBatteryOptimization();
+          
           Navigator.pop(context);
         }
       });
+    }
+  }
+
+  Future<void> _requestBatteryOptimization() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.ignoreBatteryOptimizations.status;
+      if (!status.isGranted) {
+        await Permission.ignoreBatteryOptimizations.request();
+      }
+    }
+  }
+
+  Future<void> _handleSyncNow() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.syncingMessage)),
+    );
+
+    try {
+      final syncedCount = await OneLapManager().syncNow();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.syncSuccessMessage(syncedCount))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${l10n.syncFailedMessage} $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -128,10 +182,36 @@ class _OneLapLoginPageState extends State<OneLapLoginPage> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(l10n.connectSyncButton),
+                    : Text(OneLapManager().username != null ? l10n.reconnectButton : l10n.connectSyncButton),
               ),
               const SizedBox(height: 16),
-              if (OneLapManager().username != null)
+              if (OneLapManager().username != null) ...[
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _handleSyncNow,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.tertiary,
+                    foregroundColor: theme.colorScheme.onTertiary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.onTertiary,
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.sync),
+                            const SizedBox(width: 8),
+                            Text(l10n.syncNowButton),
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 16),
                 TextButton(
                   onPressed: () async {
                     await OneLapManager().logout();
@@ -142,6 +222,30 @@ class _OneLapLoginPageState extends State<OneLapLoginPage> {
                   },
                   child: Text(l10n.disconnectAccountButton, style: const TextStyle(color: Colors.red)),
                 ),
+              ],
+              const SizedBox(height: 32),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.info_outline, size: 20, color: theme.colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        l10n.backgroundSyncTip,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

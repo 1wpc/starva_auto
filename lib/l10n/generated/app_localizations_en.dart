@@ -70,13 +70,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelButton => 'Cancel';
 
   @override
-  String get experimentalSection => 'EXPERIMENTAL';
+  String get experimentalSection => 'Experimental Features';
 
   @override
   String get oneLapSyncTitle => 'OneLap Auto Sync';
 
   @override
-  String get oneLapSyncSubtitle => 'Automatically sync activities from OneLap';
+  String get oneLapSyncSubtitle => 'Sync OneLap activities to Strava';
+
+  @override
+  String get backgroundSyncTip =>
+      'Note: Background sync relies on system scheduling.\n• iOS: Sync stops if you force-close the app. Re-open to activate.\n• Android: Please allow \'Autostart\' and disable \'Battery Optimization\' for reliable sync.';
 
   @override
   String get oneLapLoginTitle => 'Connect OneLap';
@@ -93,6 +97,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectSyncButton => 'Connect & Sync';
+
+  @override
+  String get reconnectButton => 'Reconnect';
 
   @override
   String get disconnectAccountButton => 'Disconnect Account';
@@ -218,4 +225,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orShare => 'or share from other apps';
+
+  @override
+  String get syncNowButton => 'Sync Now';
+
+  @override
+  String get syncingMessage => 'Syncing...';
+
+  @override
+  String syncSuccessMessage(int count) {
+    return 'Sync completed! $count activities synced.';
+  }
+
+  @override
+  String get syncFailedMessage => 'Sync failed. Check logs.';
 }
