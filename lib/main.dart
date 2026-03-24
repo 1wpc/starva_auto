@@ -716,20 +716,6 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
               onPressed: _confirmDisconnect,
             ),
           ],
-          if (!_isConnected) ...[
-            const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: _connectToStrava,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFC4C02),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(AppLocalizations.of(context)!.connectShort),
-            ),
-          ],
         ],
       ),
     );
@@ -746,6 +732,15 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             Text(
               AppLocalizations.of(context)!.unlockUpload,
               style: theme.textTheme.bodyLarge?.copyWith(color: theme.disabledColor),
+            ),
+            const SizedBox(height: 24),
+            InkWell(
+              onTap: _connectToStrava,
+              borderRadius: BorderRadius.circular(4),
+              child: Image.asset(
+                'assets/strava.png',
+                height: 48,
+              ),
             ),
           ],
         ),
