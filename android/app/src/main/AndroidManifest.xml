@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for internet access in release mode -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Required for background task to run without battery optimization restrictions -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     
