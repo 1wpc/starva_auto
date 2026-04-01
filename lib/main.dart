@@ -18,6 +18,7 @@ import 'theme_manager.dart';
 import 'locale_manager.dart';
 import 'privacy_policy_page.dart';
 import 'background_service.dart';
+import 'onelap_manager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -235,15 +236,59 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     _initSharingIntent();
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkPrivacyPolicy();
+      _checkPrivacyPolicy().then((_) => _checkOneLapMigration());
     });
+  }
+
+  Future<void> _checkOneLapMigration() async {
+    final prefs = await SharedPreferences.getInstance();
+    final migrationDone = prefs.getBool('onelap_migration_v2_done') ?? false;
+    
+    // 只有在没处理过迁移、且用户已经登录了顽鹿的情况下才提示
+    await OneLapManager().init();
+    if (!migrationDone && OneLapManager().username != null && mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("重要：顽鹿同步机制升级"),
+            content: const Text(
+                "由于近期顽鹿官方 API 接口发生了不兼容的变动（丢失了唯一记录标识），我们不得不升级了去重判定机制。\n\n"
+                "这会导致您所有的历史骑行记录被识别为“全新”记录，如果直接同步，可能会引发大量历史数据被重新上传到 Strava（引发重复或错误）。\n\n"
+                "⚠️ 强烈建议：点击【重置并从现在开始】。我们将为您在本地标记所有历史记录为已同步，下一次只会同步新产生的运动。\n"
+                "（此弹窗仅会显示一次，这是由于顽鹿官方变动导致的无奈之举，敬请谅解！）"),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  await prefs.setBool('onelap_migration_v2_done', true);
+                  if (context.mounted) Navigator.of(context).pop();
+                },
+                child: const Text("不了，继续全量同步", style: TextStyle(color: Colors.grey)),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await OneLapManager().markAllAsSynced();
+                  await prefs.setBool('onelap_migration_v2_done', true);
+                  if (context.mounted) Navigator.of(context).pop();
+                },
+                child: const Text("重置并从现在开始（推荐）"),
+              ),
+            ],
+          );
+        },
+      );
+    } else if (!migrationDone) {
+      // 如果还没登录顽鹿，就不需要弹窗，直接标记完成
+      await prefs.setBool('onelap_migration_v2_done', true);
+    }
   }
 
   Future<void> _checkPrivacyPolicy() async {
     final prefs = await SharedPreferences.getInstance();
     final agreed = prefs.getBool('privacy_agreed') ?? false;
     if (!agreed && mounted) {
-      showDialog(
+      await showDialog(
         context: context,
         barrierDismissible: false,
         useSafeArea: false,

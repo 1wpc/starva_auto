@@ -112,7 +112,13 @@ class OneLapService {
   }
 
   Future<File> downloadFit(String url, String savePath) async {
-    final response = await http.post(Uri.parse(url)); // User example says POST for download
+    // 发起 GET 请求时带上登录状态的 Cookie
+    final headers = <String, String>{};
+    if (_cookie != null) {
+      headers['Cookie'] = _cookie!;
+    }
+    
+    final response = await http.get(Uri.parse(url), headers: headers); 
     if (response.statusCode == 200) {
       final file = File(savePath);
       await file.writeAsBytes(response.bodyBytes);

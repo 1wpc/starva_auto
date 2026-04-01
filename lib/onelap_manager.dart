@@ -39,7 +39,7 @@ class OneLapManager extends ChangeNotifier {
         _username = username;
         
         // Initial sync of existing activities (mark as synced without uploading)
-        await _markAllAsSynced();
+        await markAllAsSynced();
         
         notifyListeners();
         return true;
@@ -58,11 +58,33 @@ class OneLapManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _markAllAsSynced() async {
+  Future<void> markAllAsSynced() async {
     try {
+      final username = await _storage.read(key: 'onelap_username');
+      final password = await _storage.read(key: 'onelap_password');
+      if (username != null && password != null) {
+        await _service.login(username, password);
+      }
+      
       final activities = await _service.getActivities();
       final prefs = await SharedPreferences.getInstance();
-      final List<String> syncedIds = activities.map((e) => e['fileKey'].toString()).toList();
+      
+      final List<String> syncedIds = [];
+      for (var a in activities) {
+        String? key = a['fileKey']?.toString();
+        if (key == null && a['durl'] != null) {
+          try {
+            key = Uri.parse(a['durl'].toString()).pathSegments.last;
+          } catch (e) {
+            key = null;
+          }
+        }
+        key ??= a['id']?.toString();
+        if (key != null) {
+          syncedIds.add(key);
+        }
+      }
+      
       await prefs.setStringList('onelap_synced_ids', syncedIds);
       LogManager().addLog("Marked ${syncedIds.length} OneLap activities as synced.");
     } catch (e) {
@@ -72,6 +94,15 @@ class OneLapManager extends ChangeNotifier {
 
   Future<int> syncNow() async {
     if (_isSyncing) return 0;
+    
+    // 如果还没处理新老版本的过度迁移，先跳过后台/自动同步
+    final prefs = await SharedPreferences.getInstance();
+    final migrationDone = prefs.getBool('onelap_migration_v2_done') ?? false;
+    if (!migrationDone) {
+      LogManager().addLog("OneLap Sync Skipped: Waiting for user to handle migration.");
+      return 0;
+    }
+
     _isSyncing = true;
     notifyListeners();
 
@@ -102,7 +133,25 @@ class OneLapManager extends ChangeNotifier {
       // 4. Compare with local
       final prefs = await SharedPreferences.getInstance();
       final syncedIds = prefs.getStringList('onelap_synced_ids') ?? [];
-      final newActivities = activities.where((a) => !syncedIds.contains(a['fileKey'])).toList();
+      
+      final newActivities = activities.where((a) {
+        String? key = a['fileKey']?.toString();
+        
+        // 如果 fileKey 为空，则尝试从下载链接中提取唯一的文件名
+        if (key == null && a['durl'] != null) {
+          try {
+            key = Uri.parse(a['durl'].toString()).pathSegments.last;
+          } catch (e) {
+            key = null;
+          }
+        }
+        
+        // 实在不行再用 id，但目前发现 id 可能是用户 id (如 1169073) 导致所有记录 id 相同
+        key ??= a['id']?.toString();
+        
+        // 确保 key 存在，并且没有同步过
+        return key != null && !syncedIds.contains(key);
+      }).toList();
 
       if (newActivities.isEmpty) {
         LogManager().addLog("OneLap Sync: No new activities.");
@@ -118,8 +167,30 @@ class OneLapManager extends ChangeNotifier {
       await _stravaService.init(); 
 
       for (var activity in newActivities) {
-        final fileKey = activity['fileKey'];
-        final downloadUrl = activity['durl'];
+        // Fallback for fileKey if OneLap API changed
+        String? fileKey = activity['fileKey']?.toString();
+        if (fileKey == null && activity['durl'] != null) {
+          try {
+            fileKey = Uri.parse(activity['durl'].toString()).pathSegments.last;
+          } catch (e) {
+            fileKey = null;
+          }
+        }
+        fileKey ??= activity['id']?.toString() ?? 'unknown_activity';
+        
+        String downloadUrl = activity['durl'] ?? '';
+        if (downloadUrl.isEmpty) {
+          LogManager().addLog("Skip: No download URL for $fileKey");
+          continue;
+        }
+
+        // Handle relative URLs or missing schemes
+        if (downloadUrl.startsWith('/')) {
+          downloadUrl = 'https://u.onelap.cn$downloadUrl';
+        } else if (!downloadUrl.startsWith('http')) {
+          // If it's a raw domain like fits.rfsvr.net/...
+          downloadUrl = 'http://$downloadUrl';
+        }
         
         try {
           LogManager().addLog("Downloading $fileKey...");
@@ -127,7 +198,8 @@ class OneLapManager extends ChangeNotifier {
           final file = await _service.downloadFit(downloadUrl, savePath);
           
           LogManager().addLog("Uploading $fileKey to Strava...");
-          await _stravaService.uploadFitFile(file);
+          final uploadResult = await _stravaService.uploadFitFile(file);
+          LogManager().addLog("Strava: $uploadResult");
           
           // Mark as synced
           syncedIds.add(fileKey);
