@@ -19,6 +19,7 @@ import 'locale_manager.dart';
 import 'privacy_policy_page.dart';
 import 'background_service.dart';
 import 'onelap_manager.dart';
+import 'update_manager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -236,7 +237,12 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
     _initSharingIntent();
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkPrivacyPolicy().then((_) => _checkOneLapMigration());
+      _checkPrivacyPolicy().then((_) {
+        _checkOneLapMigration();
+        if (mounted) {
+          UpdateManager.checkUpdate(context, showNoUpdateMsg: false);
+        }
+      });
     });
   }
 
@@ -746,10 +752,15 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
             icon: const Icon(Icons.settings_rounded),
             color: _isConnected ? Colors.white : theme.iconTheme.color,
             tooltip: AppLocalizations.of(context)!.settingsTooltip,
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async {
+              await Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
+              if (mounted) {
+                setState(() {
+                  _isConnected = _stravaService.isAuthenticated;
+                });
+              }
             },
           ),
           if (_isConnected) ...[

@@ -38,8 +38,32 @@
   "aboutSection": "ABOUT",
   "versionTitle": "Version",
   "openSourceTitle": "Open Source",
+  "stravaConfigTitle": "Strava API Config",
+  "stravaConfigSubtitle": "Custom Client ID and Secret",
+  "stravaConfigPageTitle": "Custom Strava Config",
+  "stravaConfigDescription": "The official API limits have been lifted to support up to 999 connected users. You do not need to fill this out unless strictly necessary.\nIf you still want to use your own Strava Client ID and Client Secret, configure them here. Reconnection is required after saving.",
+  "stravaClientIdLabel": "Client ID",
+  "stravaClientSecretLabel": "Client Secret",
+  "saveButton": "Save Config",
+  "clearConfigButton": "Clear Custom Config",
+  "configSavedMessage": "Config saved, please reconnect to Strava",
+  "configClearedMessage": "Custom config cleared, please reconnect to Strava",
   "clearLogsTooltip": "Clear Logs",
   "noLogsAvailable": "No logs available",
+  "checkUpdateTitle": "Check for Updates",
+  "checkingUpdate": "Checking for updates...",
+  "updateAvailable": "New version available: {version}",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateUpToDate": "You are on the latest version",
+  "updateDownload": "Download",
+  "updateLater": "Later",
+  "updateError": "Failed to check for updates",
   "finalizingConnection": "Finalizing connection...",
   "connectedSuccess": "Connected to Strava successfully!",
   "authFailed": "Authorization failed. Check logs.",

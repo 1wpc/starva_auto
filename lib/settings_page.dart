@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'log_manager.dart';
 import 'theme_manager.dart';
 import 'locale_manager.dart';
 import 'privacy_policy_page.dart';
+import 'strava_config_page.dart';
+import 'strava_service.dart';
 import 'onelap_login_page.dart';
 import 'onelap_manager.dart';
+import 'update_manager.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -63,6 +68,25 @@ class SettingsPage extends StatelessWidget {
                 ),
               );
             },
+          ),
+          const SizedBox(height: 16),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
+              leading: const Icon(Icons.api_rounded, color: Color(0xFFFC4C02)),
+              title: Text(AppLocalizations.of(context)!.stravaConfigTitle),
+              subtitle: Text(AppLocalizations.of(context)!.stravaConfigSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StravaConfigPage(stravaService: StravaService()),
+                  ),
+                );
+                // If config changed, you might want to refresh state if needed
+              },
+            ),
           ),
           const SizedBox(height: 24),
           _buildSectionHeader(theme, AppLocalizations.of(context)!.experimentalSection),
@@ -135,18 +159,43 @@ class SettingsPage extends StatelessWidget {
                   },
                 ),
                 const Divider(height: 1),
+                FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (context, snapshot) {
+                    final version = snapshot.hasData ? snapshot.data!.version : "1.1.0";
+                    return ListTile(
+                      leading: const Icon(Icons.info_outline, color: Color(0xFFFC4C02)),
+                      title: Text(AppLocalizations.of(context)!.versionTitle),
+                      trailing: Text(version),
+                      onTap: () {
+                        UpdateManager.checkUpdate(context, showNoUpdateMsg: true);
+                      },
+                    );
+                  },
+                ),
+                const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.info_outline, color: Color(0xFFFC4C02)),
-                  title: Text(AppLocalizations.of(context)!.versionTitle),
-                  trailing: const Text("1.1.0"),
+                  leading: const Icon(Icons.update, color: Color(0xFFFC4C02)),
+                  title: Text(AppLocalizations.of(context)!.checkUpdateTitle),
+                  trailing: const Icon(Icons.chevron_right, size: 16),
+                  onTap: () {
+                    UpdateManager.checkUpdate(context, showNoUpdateMsg: true);
+                  },
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.code, color: Color(0xFFFC4C02)),
                   title: Text(AppLocalizations.of(context)!.openSourceTitle),
                   trailing: const Icon(Icons.open_in_new, size: 16),
-                  onTap: () {
-                    // Future: Open GitHub repo
+                  onTap: () async {
+                    final Uri url = Uri.parse('https://github.com/1wpc/starva_auto');
+                    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Could not launch $url')),
+                        );
+                      }
+                    }
                   },
                 ),
               ],

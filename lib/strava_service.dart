@@ -2,17 +2,27 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'secrets.dart';
 
 class StravaService {
+  // Singleton pattern
+  static final StravaService _instance = StravaService._internal();
+  factory StravaService() => _instance;
+  StravaService._internal();
+
   static const String _authUrl = 'https://www.strava.com/oauth/authorize';
   static const String _tokenUrl = 'https://www.strava.com/oauth/token';
   static const String _uploadUrl = 'https://www.strava.com/api/v3/uploads';
   static const String _redirectUri = 'starvaauto://localhost';
+  
+  final _storage = const FlutterSecureStorage();
 
-  // Using hardcoded credentials from secrets.dart
-  String get clientId => AppSecrets.clientId;
-  String get clientSecret => AppSecrets.clientSecret;
+  String? _customClientId;
+  String? _customClientSecret;
+
+  String get clientId => (_customClientId != null && _customClientId!.isNotEmpty) ? _customClientId! : AppSecrets.clientId;
+  String get clientSecret => (_customClientSecret != null && _customClientSecret!.isNotEmpty) ? _customClientSecret! : AppSecrets.clientSecret;
   
   String? accessToken;
   String? refreshToken;
@@ -23,9 +33,32 @@ class StravaService {
     accessToken = prefs.getString('access_token');
     refreshToken = prefs.getString('refresh_token');
     expiresAt = prefs.getInt('expires_at');
+    
+    _customClientId = await _storage.read(key: 'strava_custom_client_id');
+    _customClientSecret = await _storage.read(key: 'strava_custom_client_secret');
   }
-
-  // No longer need saveCredentials as we use secrets.dart
+  
+  Future<void> saveCustomCredentials(String id, String secret) async {
+    await _storage.write(key: 'strava_custom_client_id', value: id.trim());
+    await _storage.write(key: 'strava_custom_client_secret', value: secret.trim());
+    _customClientId = id.trim();
+    _customClientSecret = secret.trim();
+    
+    // Clear tokens to force re-auth with new credentials
+    await logout();
+  }
+  
+  Future<void> clearCustomCredentials() async {
+    await _storage.delete(key: 'strava_custom_client_id');
+    await _storage.delete(key: 'strava_custom_client_secret');
+    _customClientId = null;
+    _customClientSecret = null;
+    
+    // Clear tokens to force re-auth
+    await logout();
+  }
+  
+  bool get hasCustomCredentials => _customClientId != null && _customClientId!.isNotEmpty && _customClientSecret != null && _customClientSecret!.isNotEmpty;
 
   bool get isAuthenticated {
     if (accessToken == null || expiresAt == null) return false;

@@ -38,8 +38,32 @@
   "aboutSection": "关于",
   "versionTitle": "版本",
   "openSourceTitle": "开源",
+  "stravaConfigTitle": "Strava API 配置",
+  "stravaConfigSubtitle": "自定义 Client ID 和 Secret",
+  "stravaConfigPageTitle": "自定义 Strava 配置",
+  "stravaConfigDescription": "由于官方 API 限制已解除，默认支持高达 999 个用户连接，非必要请勿填写自定义配置。\n如果您仍需要使用自己的 Strava Client ID 和 Client Secret，可以在此配置。保存后需要重新连接 Strava。",
+  "stravaClientIdLabel": "Client ID",
+  "stravaClientSecretLabel": "Client Secret",
+  "saveButton": "保存配置",
+  "clearConfigButton": "清除自定义配置",
+  "configSavedMessage": "配置已保存，请重新连接 Strava",
+  "configClearedMessage": "自定义配置已清除，请重新连接 Strava",
   "clearLogsTooltip": "清除日志",
   "noLogsAvailable": "暂无日志",
+  "checkUpdateTitle": "检查更新",
+  "checkingUpdate": "正在检查更新...",
+  "updateAvailable": "发现新版本：{version}",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateUpToDate": "当前已是最新版本",
+  "updateDownload": "前往下载",
+  "updateLater": "以后再说",
+  "updateError": "检查更新失败",
   "finalizingConnection": "正在完成连接...",
   "connectedSuccess": "成功连接到 Strava！",
   "authFailed": "授权失败，请检查日志。",

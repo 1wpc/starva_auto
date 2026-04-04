@@ -129,10 +129,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openSourceTitle => 'Open Source';
 
   @override
+  String get stravaConfigTitle => 'Strava API Config';
+
+  @override
+  String get stravaConfigSubtitle => 'Custom Client ID and Secret';
+
+  @override
+  String get stravaConfigPageTitle => 'Custom Strava Config';
+
+  @override
+  String get stravaConfigDescription =>
+      'The official API limits have been lifted to support up to 999 connected users. You do not need to fill this out unless strictly necessary.\nIf you still want to use your own Strava Client ID and Client Secret, configure them here. Reconnection is required after saving.';
+
+  @override
+  String get stravaClientIdLabel => 'Client ID';
+
+  @override
+  String get stravaClientSecretLabel => 'Client Secret';
+
+  @override
+  String get saveButton => 'Save Config';
+
+  @override
+  String get clearConfigButton => 'Clear Custom Config';
+
+  @override
+  String get configSavedMessage => 'Config saved, please reconnect to Strava';
+
+  @override
+  String get configClearedMessage =>
+      'Custom config cleared, please reconnect to Strava';
+
+  @override
   String get clearLogsTooltip => 'Clear Logs';
 
   @override
   String get noLogsAvailable => 'No logs available';
+
+  @override
+  String get checkUpdateTitle => 'Check for Updates';
+
+  @override
+  String get checkingUpdate => 'Checking for updates...';
+
+  @override
+  String updateAvailable(String version) {
+    return 'New version available: $version';
+  }
+
+  @override
+  String get updateUpToDate => 'You are on the latest version';
+
+  @override
+  String get updateDownload => 'Download';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateError => 'Failed to check for updates';
 
   @override
   String get finalizingConnection => 'Finalizing connection...';

@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
     }
 }
 
@@ -31,22 +31,23 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+fun pluginJvmTarget(projectName: String): String {
+    return when (projectName) {
+        "app", "package_info_plus", "shared_preferences_android" -> "17"
+        "file_picker" -> "11"
+        "receive_sharing_intent", "workmanager_android" -> "1.8"
+        else -> "17"
+    }
+}
+
 subprojects {
     val configure = {
+          val javaTarget = pluginJvmTarget(project.name)
+
           tasks.withType<KotlinCompile>().configureEach {
-              println("Configuring Kotlin for project: ${project.name}")
-              if (project.name == "file_picker") {
-                  kotlinOptions {
-                      jvmTarget = "11"
-                  }
-              } else if (project.name == "shared_preferences_android") {
-                  kotlinOptions {
-                      jvmTarget = "17"
-                  }
-              } else {
-                  kotlinOptions {
-                      jvmTarget = "1.8"
-                  }
+              println("Configuring Kotlin for project: ${project.name} -> JVM $javaTarget")
+              kotlinOptions {
+                  jvmTarget = javaTarget
               }
           }
       }

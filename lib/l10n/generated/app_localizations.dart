@@ -332,6 +332,66 @@ abstract class AppLocalizations {
   /// **'Open Source'**
   String get openSourceTitle;
 
+  /// No description provided for @stravaConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava API Config'**
+  String get stravaConfigTitle;
+
+  /// No description provided for @stravaConfigSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Client ID and Secret'**
+  String get stravaConfigSubtitle;
+
+  /// No description provided for @stravaConfigPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Strava Config'**
+  String get stravaConfigPageTitle;
+
+  /// No description provided for @stravaConfigDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The official API limits have been lifted to support up to 999 connected users. You do not need to fill this out unless strictly necessary.\nIf you still want to use your own Strava Client ID and Client Secret, configure them here. Reconnection is required after saving.'**
+  String get stravaConfigDescription;
+
+  /// No description provided for @stravaClientIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Client ID'**
+  String get stravaClientIdLabel;
+
+  /// No description provided for @stravaClientSecretLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Client Secret'**
+  String get stravaClientSecretLabel;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Config'**
+  String get saveButton;
+
+  /// No description provided for @clearConfigButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Custom Config'**
+  String get clearConfigButton;
+
+  /// No description provided for @configSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Config saved, please reconnect to Strava'**
+  String get configSavedMessage;
+
+  /// No description provided for @configClearedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom config cleared, please reconnect to Strava'**
+  String get configClearedMessage;
+
   /// No description provided for @clearLogsTooltip.
   ///
   /// In en, this message translates to:
@@ -343,6 +403,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No logs available'**
   String get noLogsAvailable;
+
+  /// No description provided for @checkUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Updates'**
+  String get checkUpdateTitle;
+
+  /// No description provided for @checkingUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for updates...'**
+  String get checkingUpdate;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'New version available: {version}'**
+  String updateAvailable(String version);
+
+  /// No description provided for @updateUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'You are on the latest version'**
+  String get updateUpToDate;
+
+  /// No description provided for @updateDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get updateDownload;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// No description provided for @updateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to check for updates'**
+  String get updateError;
 
   /// No description provided for @finalizingConnection.
   ///

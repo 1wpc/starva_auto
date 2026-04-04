@@ -127,10 +127,64 @@ class AppLocalizationsZh extends AppLocalizations {
   String get openSourceTitle => '开源';
 
   @override
+  String get stravaConfigTitle => 'Strava API 配置';
+
+  @override
+  String get stravaConfigSubtitle => '自定义 Client ID 和 Secret';
+
+  @override
+  String get stravaConfigPageTitle => '自定义 Strava 配置';
+
+  @override
+  String get stravaConfigDescription =>
+      '由于官方 API 限制已解除，默认支持高达 999 个用户连接，非必要请勿填写自定义配置。\n如果您仍需要使用自己的 Strava Client ID 和 Client Secret，可以在此配置。保存后需要重新连接 Strava。';
+
+  @override
+  String get stravaClientIdLabel => 'Client ID';
+
+  @override
+  String get stravaClientSecretLabel => 'Client Secret';
+
+  @override
+  String get saveButton => '保存配置';
+
+  @override
+  String get clearConfigButton => '清除自定义配置';
+
+  @override
+  String get configSavedMessage => '配置已保存，请重新连接 Strava';
+
+  @override
+  String get configClearedMessage => '自定义配置已清除，请重新连接 Strava';
+
+  @override
   String get clearLogsTooltip => '清除日志';
 
   @override
   String get noLogsAvailable => '暂无日志';
+
+  @override
+  String get checkUpdateTitle => '检查更新';
+
+  @override
+  String get checkingUpdate => '正在检查更新...';
+
+  @override
+  String updateAvailable(String version) {
+    return '发现新版本：$version';
+  }
+
+  @override
+  String get updateUpToDate => '当前已是最新版本';
+
+  @override
+  String get updateDownload => '前往下载';
+
+  @override
+  String get updateLater => '以后再说';
+
+  @override
+  String get updateError => '检查更新失败';
 
   @override
   String get finalizingConnection => '正在完成连接...';
