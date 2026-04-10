@@ -79,7 +79,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get backgroundSyncTip =>
-      '注意：后台同步依赖系统调度。\n• iOS：手动划掉应用会停止同步，需重新打开应用以激活。\n• Android：建议开启“自启动”并关闭“电池优化”以保证同步稳定。';
+      '注意：后台同步依赖系统调度。\n• 首次连接：将从下一次产生的新骑行记录开始同步。\n• iOS：手动划掉应用会停止同步，需重新打开应用以激活。\n• Android：建议开启“自启动”并关闭“电池优化”以保证同步稳定。';
 
   @override
   String get oneLapLoginTitle => '连接顽鹿';

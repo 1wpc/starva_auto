@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @backgroundSyncTip.
   ///
   /// In en, this message translates to:
-  /// **'Note: Background sync relies on system scheduling.\n• iOS: Sync stops if you force-close the app. Re-open to activate.\n• Android: Please allow \'Autostart\' and disable \'Battery Optimization\' for reliable sync.'**
+  /// **'Note: Background sync depends on system scheduling.\n• First Connect: Sync starts from your next new activity.\n• iOS: Force quitting stops sync; reopen to reactivate.\n• Android: Enable \'Auto-start\' and disable \'Battery Optimization\'.'**
   String get backgroundSyncTip;
 
   /// No description provided for @oneLapLoginTitle.
