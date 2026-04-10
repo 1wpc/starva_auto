@@ -232,9 +232,10 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    _initStrava();
-    _initDeepLinks();
-    _initSharingIntent();
+    _initStrava().then((_) {
+      _initDeepLinks();
+      _initSharingIntent();
+    });
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkPrivacyPolicy().then((_) {
@@ -320,9 +321,13 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   Future<void> _initStrava() async {
     try {
       await _stravaService.init();
-      setState(() {
+      if (mounted) {
+        setState(() {
+          _isConnected = _stravaService.isAuthenticated;
+        });
+      } else {
         _isConnected = _stravaService.isAuthenticated;
-      });
+      }
       if (_isConnected) {
         _addLog("Connected to Strava session.");
       } else {
@@ -363,14 +368,22 @@ class _DashboardPageState extends State<DashboardPage> with SingleTickerProvider
   void _initSharingIntent() {
     // While running
     _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((List<SharedMediaFile> value) {
-      if (value.isNotEmpty) _handleSharedFiles(value);
+      if (value.isNotEmpty) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _handleSharedFiles(value);
+        });
+      }
     }, onError: (err) {
       _addLog("Sharing intent error: $err", isError: true);
     });
 
     // Initial launch
     ReceiveSharingIntent.instance.getInitialMedia().then((List<SharedMediaFile> value) {
-      if (value.isNotEmpty) _handleSharedFiles(value);
+      if (value.isNotEmpty) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _handleSharedFiles(value);
+        });
+      }
     });
   }
 
